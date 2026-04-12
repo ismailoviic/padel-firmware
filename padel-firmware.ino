@@ -37,8 +37,8 @@ String TELEMETRY_ENDPOINT = BASE_URL + "/api/device/telemetry";
 // --- GITHUB OTA SETTINGS ---
 // IMPORTANT: Change this version string EVERY time you upload new code to GitHub!
 String CURRENT_VERSION = "1.0"; 
-String GITHUB_VERSION_URL = "https://raw.githubusercontent.com/ismailoviic/padel_device_async_work_code_v1/main/version.json";
-String GITHUB_FIRMWARE_URL = "https://raw.githubusercontent.com/ismailoviic/padel_device_async_work_code_v1/main/build/esp32.esp32.esp32/padel_device_async_work_code_v1.ino.bin";
+String GITHUB_VERSION_URL = "https://raw.githubusercontent.com/ismailoviic/padel-firmware/refs/heads/main/version.json";
+String GITHUB_FIRMWARE_URL = "https://raw.githubusercontent.com/ismailoviic/padel-firmware/refs/heads/main/build/esp32.esp32.esp32/padel-firmware.ino.bin";
 
 String deviceId = "";
 bool isSystemActive = false;
