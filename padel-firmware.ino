@@ -17,7 +17,7 @@
 #define MOSI_PIN 4
 #define TOUCH_PIN 39
 
-const int ledPins[5] = { 12, 5, 2, 17, 33 };
+const int ledPins[5] = { 12, 2, 5, 17, 33 };
 MFRC522 mfrc522(SS_PIN, RST_PIN);
 
 // ETH01 Specific PHY Configuration
@@ -36,7 +36,7 @@ String TELEMETRY_ENDPOINT = BASE_URL + "/api/device/telemetry";
 
 // --- GITHUB OTA SETTINGS ---
 // IMPORTANT: Change this version string EVERY time you upload new code to GitHub!
-String CURRENT_VERSION = "1.2"; 
+String CURRENT_VERSION = "1.3"; 
 String GITHUB_VERSION_URL = "https://raw.githubusercontent.com/ismailoviic/padel-firmware/main/version.json";
 String GITHUB_FIRMWARE_URL = "https://raw.githubusercontent.com/ismailoviic/padel-firmware/main/build/esp32.esp32.esp32/padel-firmware.ino.bin";
 
