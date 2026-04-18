@@ -36,7 +36,7 @@ String TELEMETRY_ENDPOINT = BASE_URL + "/api/device/telemetry";
 
 // --- GITHUB OTA SETTINGS ---
 // IMPORTANT: Change this version string EVERY time you upload new code to GitHub!
-String CURRENT_VERSION = "1.42"; 
+String CURRENT_VERSION = "1.43"; 
 String GITHUB_VERSION_URL = "https://raw.githubusercontent.com/ismailoviic/padel-firmware/main/version.json";
 String GITHUB_FIRMWARE_URL = "https://raw.githubusercontent.com/ismailoviic/padel-firmware/main/build/esp32.esp32.esp32/padel-firmware.ino.bin";
 
@@ -245,17 +245,17 @@ void loop() {
   if (isSystemActive && touchState == HIGH) {
     unsigned long startTime = millis();
 
+    while (digitalRead(TOUCH_PIN) == HIGH) { delay(50); }
+
+    unsigned long duration = millis() - startTime;
+    sendTelemetry("TOUCH_CLICK", "N/A", String(duration) + "ms");
+
     for (int b = 0; b < 3; b++) {
       for (int i = 0; i < 5; i++) digitalWrite(ledPins[i], HIGH);
       delay(250);
       for (int i = 0; i < 5; i++) digitalWrite(ledPins[i], LOW);
       delay(250);
     }
-
-    while (digitalRead(TOUCH_PIN) == HIGH) { delay(50); }
-
-    unsigned long duration = (millis() - startTime) / 1000;
-    sendTelemetry("TOUCH_CLICK", "N/A", String(duration) + "s");
   }
 
   vTaskDelay(10 / portTICK_PERIOD_MS); 
