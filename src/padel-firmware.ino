@@ -5,7 +5,7 @@
 #include <HTTPClient.h>
 #include <HTTPUpdate.h>
 #include <ArduinoJson.h>
-#include <NetworkClientSecure.h>
+#include <WiFiClientSecure.h>
 
 // ==========================================
 // 1. HARDWARE PINS & SETTINGS
@@ -36,7 +36,7 @@ String TELEMETRY_ENDPOINT = BASE_URL + "/api/device/telemetry";
 
 // --- GITHUB OTA SETTINGS ---
 // IMPORTANT: Change this version string EVERY time you upload new code to GitHub!
-String CURRENT_VERSION = "1.3"; 
+String CURRENT_VERSION = "1.4"; 
 String GITHUB_VERSION_URL = "https://raw.githubusercontent.com/ismailoviic/padel-firmware/main/version.json";
 String GITHUB_FIRMWARE_URL = "https://raw.githubusercontent.com/ismailoviic/padel-firmware/main/build/esp32.esp32.esp32/padel-firmware.ino.bin";
 
@@ -60,7 +60,7 @@ void performOTA(void* parameter) {
     if (!isUpdating && ETH.linkUp() && ETH.localIP().toString() != "0.0.0.0") {
       Serial.println("\n[OTA] Checking GitHub for updates...");
       
-      NetworkClientSecure client;
+      WiFiClientSecure client;
       client.setInsecure(); // Bypass SSL verification for GitHub
       
       HTTPClient http;
@@ -120,7 +120,7 @@ void sendTelemetry(String eventType, String eventData, String systemStatus) {
     return;
   }
 
-  NetworkClientSecure secureClient;
+  WiFiClientSecure secureClient;
   secureClient.setInsecure();  
 
   HTTPClient http;
@@ -174,7 +174,7 @@ void setup() {
 
   // Trigger Ethernet to start in the background (Non-Blocking)
   Serial.println("[NET] Starting Ethernet hardware in background...");
-  ETH.begin(ETH_PHY_TYPE, ETH_PHY_ADDR, ETH_PHY_MDC, ETH_PHY_MDIO, ETH_PHY_POWER, ETH_CLK_MODE);
+  ETH.begin(ETH_PHY_ADDR, ETH_PHY_POWER, ETH_PHY_MDC, ETH_PHY_MDIO, ETH_PHY_TYPE, ETH_CLK_MODE);
 
   deviceId = ETH.macAddress();
   Serial.println("[NET] Device ID: " + deviceId);
@@ -245,14 +245,11 @@ void loop() {
   if (isSystemActive && touchState == HIGH) {
     sendTelemetry("TOUCH_CLICK", "N/A", "Sequence Triggered");
 
-    int speed = 150;
-    for (int i = 0; i < 5; i++) {
-      digitalWrite(ledPins[i], HIGH);
-      delay(speed);
-    }
-    for (int i = 0; i < 5; i++) {
-      digitalWrite(ledPins[i], LOW);
-      delay(speed);
+    for (int b = 0; b < 3; b++) {
+      for (int i = 0; i < 5; i++) digitalWrite(ledPins[i], HIGH);
+      delay(250);
+      for (int i = 0; i < 5; i++) digitalWrite(ledPins[i], LOW);
+      delay(250);
     }
 
     while (digitalRead(TOUCH_PIN) == HIGH) { delay(50); }
