@@ -1,18 +1,19 @@
-# Padel Court IoT Access Device
+# Padel Court IoT Match Unit
 
-This repository contains the firmware for an ESP32-ETH01 based IoT device designed for Padel court management. It handles RFID-based user authentication, touch-sensor interactions, local LED visual feedback, and secure telemetry reporting to a Next.js backend. 
+This repository contains the firmware for an ESP32-ETH01 based IoT device designed for Padel court match scoring. Each court carries two units (one per team side), identified in the app by a printed QR code. A unit's only live job is to watch for its court's match and report raw touch-sensor presses (with duration) to the backend — the backend owns 100% of the scoring logic (points, games, sets, tiebreaks) and tells the unit how to react via LED feedback.
 
 Crucially, this device features a completely autonomous **GitHub-based Over-The-Air (OTA) update system**, allowing firmware upgrades without physical USB access.
 
 ## ✨ Key Features
-* **Instant Hardware Response:** Built on a non-blocking architecture. RFID taps and touch sensor inputs are processed instantly, even while the device negotiates its Ethernet connection in the background.
-* **Secure Telemetry:** Communicates with the central server via HTTPS (`NetworkClientSecure`) to log all access attempts and interactions.
+* **Instant Hardware Response:** Built on a non-blocking architecture. Touch sensor inputs are processed instantly, even while the device negotiates its Ethernet connection in the background.
+* **Match-Aware State Machine:** Polls the backend for its court's active match (`GET /v1/hardware/session`), switching between `IDLE` and `MATCH_LIVE` automatically — no match IDs are ever hardcoded.
+* **Dumb Sensor, Smart Server:** Reports raw touch durations to `POST /v1/hardware/events`; the backend classifies each as a point or an undo and runs the actual padel scoring engine. The unit only renders the result via its LEDs.
+* **Per-Device Authentication:** Identifies itself with its MAC address (`X-Device-Id`) plus a provisioned shared secret (`X-Device-Key`), issued once by the backend (`POST /v1/devices`) and flashed into the sketch.
 * **Autonomous GitHub OTA:** The device checks this GitHub repository periodically. If a new version is detected in `version.json`, it securely downloads the compiled `.bin` file and updates its own flash memory.
 * **Robust Networking:** Utilizes the ESP32-ETH01's hardware LAN8720 chip for highly stable, hardwired internet access.
 
 ## 🛠 Hardware Requirements
 * **Microcontroller:** ESP32-ETH01 (v1.4)
-* **RFID Reader:** MFRC522 (SPI)
 * **Touch Sensor:** TTP223 (HW-763)
 * **Feedback:** 5x Standard LEDs (with appropriate current-limiting resistors)
 
@@ -21,12 +22,6 @@ Due to the ETH01's internal LAN routing, specific pins must be used to avoid boo
 
 | Component | Pin / Interface | ESP32-ETH01 Pin | Notes |
 | :--- | :--- | :--- | :--- |
-| **RFID MFRC522** | 3.3V | 3V3 | **Do not use 5V** |
-| | RST | IO32 (CFG) | |
-| | MISO | IO35 | Input only |
-| | MOSI | IO4 | |
-| | SCK | IO14 | |
-| | SDA (SS) | IO15 | |
 | **Touch Sensor** | VCC | 3V3 | |
 | | I/O | IO39 | Input only |
 | **LED Array** | LED 1 | IO2 | |
@@ -37,7 +32,6 @@ Due to the ETH01's internal LAN routing, specific pins must be used to avoid boo
 
 ## 📦 Software Dependencies
 Install the following libraries via the Arduino Library Manager before compiling:
-* `MFRC522` by GithubCommunity
 * `ArduinoJson` by Benoit Blanchon (v6.x or v7.x)
 
 *(Note: Requires ESP32 Arduino Core v3.x or higher for `NetworkClientSecure` compatibility).*
