@@ -23,13 +23,15 @@ const int ledPins[5] = { 12, 2, 5, 17, 33 };
 // ==========================================
 // 2. NETWORK, API & OTA CONFIGURATION
 // ==========================================
-String BASE_URL = "https://padel.esstechnologies.ma";
+// DEV: point at the local API server over plain HTTP.
+// PROD: switch back to https://padel.esstechnologies.ma
+String BASE_URL = "http://192.168.100.15:3001";
 String SESSION_ENDPOINT = BASE_URL + "/v1/hardware/session";
 String EVENTS_ENDPOINT = BASE_URL + "/v1/hardware/events";
 
 // --- GITHUB OTA SETTINGS ---
 // IMPORTANT: Change this version string EVERY time you upload new code to GitHub!
-String CURRENT_VERSION = "1.44";
+String CURRENT_VERSION = "1.45";
 String GITHUB_VERSION_URL = "https://raw.githubusercontent.com/ismailoviic/padel-firmware/main/version.json";
 String GITHUB_FIRMWARE_URL = "https://raw.githubusercontent.com/ismailoviic/padel-firmware/main/build/esp32.esp32.esp32/padel-firmware.ino.bin";
 
@@ -39,7 +41,9 @@ String deviceId = "";
 // court owner provisions it (alongside the publicCode printed on its QR
 // label), then flashed here. Sent on every match-API request together with
 // deviceId (its MAC address) to authenticate as a registered court unit.
-String DEVICE_SECRET = "REPLACE_WITH_PROVISIONED_DEVICE_SECRET";
+// DEV: matches the bcrypt hash seeded by packages/db/src/seed/fix-codes.ts
+// PROD: replace with the secret returned by POST /v1/devices at provisioning time
+String DEVICE_SECRET = "dev-secret";
 
 // State Flags
 volatile bool isUpdating = false;
@@ -176,11 +180,10 @@ bool reportHardwareEvent(const String& type, long durationMs, const String& mess
     return false;
   }
 
-  WiFiClientSecure client;
-  client.setInsecure();
-
+  // Plain HTTP for local API — no TLS needed on the dev network.
+  // Switch to WiFiClientSecure + setInsecure() if the API moves to HTTPS.
   HTTPClient http;
-  http.begin(client, EVENTS_ENDPOINT);
+  http.begin(EVENTS_ENDPOINT);
   addDeviceAuthHeaders(http);
   http.addHeader("Content-Type", "application/json");
 
@@ -219,11 +222,8 @@ bool reportHardwareEvent(const String& type, long durationMs, const String& mess
 void pollSession() {
   if (!networkReady()) return;
 
-  WiFiClientSecure client;
-  client.setInsecure();
-
   HTTPClient http;
-  http.begin(client, SESSION_ENDPOINT);
+  http.begin(SESSION_ENDPOINT);
   addDeviceAuthHeaders(http);
 
   int httpCode = http.GET();
