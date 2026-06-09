@@ -25,13 +25,13 @@ const int ledPins[5] = { 12, 2, 5, 17, 33 };
 // ==========================================
 // DEV: point at the local API server over plain HTTP.
 // PROD: switch back to https://padel.esstechnologies.ma
-String BASE_URL = "http://192.168.100.15:3001";
+String BASE_URL = "http://192.168.100.6:3001";
 String SESSION_ENDPOINT = BASE_URL + "/v1/hardware/session";
 String EVENTS_ENDPOINT = BASE_URL + "/v1/hardware/events";
 
 // --- GITHUB OTA SETTINGS ---
 // IMPORTANT: Change this version string EVERY time you upload new code to GitHub!
-String CURRENT_VERSION = "1.45";
+String CURRENT_VERSION = "1.46";
 String GITHUB_VERSION_URL = "https://raw.githubusercontent.com/ismailoviic/padel-firmware/main/version.json";
 String GITHUB_FIRMWARE_URL = "https://raw.githubusercontent.com/ismailoviic/padel-firmware/main/build/esp32.esp32.esp32/padel-firmware.ino.bin";
 
